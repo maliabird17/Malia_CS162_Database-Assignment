@@ -2,10 +2,7 @@
 **Malia Bird, Spring Semester CS162**
 
 TO DO: 
-- Commenting!!!
 - Check everything runs correctly
-- Indexes
-
 
 ## Getting Started
 ```

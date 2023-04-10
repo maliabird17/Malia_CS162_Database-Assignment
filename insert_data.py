@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker
 Session = sessionmaker(bind=engine)
 session = Session()
 
-
+### DATA TO BE INSERTED ###
 offices = [
     Offices(name = 'SF Real Estate'),
     Offices(name = 'London Real Estate'),
@@ -24,7 +24,6 @@ homes = [
     Homes(beds=2, baths=2.5, address='33 Exmouth', zipcode='EC1R 4QL', price_listed= 570000.00, date_listed=date(2021,4,16), month_listed=20214, sold=True),
     Homes(beds=3, baths=1.5, address='91 Clerkenwell Rd', zipcode='EC1R 5BX', price_listed= 200000.00, date_listed=date(2021,1,17), month_listed=20211),
 ]
-
 
 agents = [
     Agents(office_id=1, first_name = 'Dwight', last_name='Schrute', email='dwight@estates.com'),
@@ -63,7 +62,6 @@ listings = [
     Listings(home_id=7, agent_id=6, seller_id=4)
 ]
 
-
 buyers = [
     Buyers(first_name = 'Toph', last_name='Beifong', email='metal_bender@gmail.com'),
     Buyers(first_name = 'Firelord', last_name='Ozai', email='crazy@yahoo.com'),
@@ -71,25 +69,29 @@ buyers = [
     Buyers(first_name = 'Princess', last_name='Yue', email='moon@sky.com')
 ]
 
+# adding all the data defined in the lists above
 session.add_all(offices)
 session.add_all(homes)
 session.add_all(agents)
 session.add_all(sellers)
 session.add_all(listings)
-session.add(Sales(home_id=7, agent_id=13, buyer_id=1, price_sold=200000.00, date_sold=date(2022,9,21), month_sold=20222))
 session.add_all(buyers)
-session.commit()
+# Including one old sale (won't be included in this month's sales for checking query filters)
+session.add(Sales(home_id=7, agent_id=13, buyer_id=1, price_sold=200000.00, date_sold=date(2022,9,21), month_sold=20222))
+session.commit() # commit all database additions in this session
 
 
 ## Transaction Function 
 # Referencing: https://riptutorial.com/sqlalchemy/example/6625/transactions and https://docs.sqlalchemy.org/en/20/core/connections.html 
 def transaction(home_id, agent_id, buyer_id, price_sold):
-    session = Session()
+    session = Session() # start individual session for a transaction
+    # Try completing the sale data entry 
     try: 
         session.add(Sales(home_id=home_id, agent_id=agent_id, buyer_id=buyer_id, price_sold=price_sold))
         home_sold = session.query(Homes).get(home_id)
-        home_sold.sold = True
+        home_sold.sold = True # update the sold status of the the specified home
         session.commit()
+    # If something interupts or fails in the transaction, do not commit to database and rollback
     except: 
         session.rollback()
         raise

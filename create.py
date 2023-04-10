@@ -14,8 +14,9 @@ Base = declarative_base()
 ### Offices table, this is mostly to help query office-specific information, which is commonly done
 class Offices(Base):
     __tablename__ = 'offices'
-    office_id = Column(Integer, primary_key = True)
+    office_id = Column(Integer, primary_key = True) # ensures unique identifiers for all entries
     name = Column(Text)
+    # Agents will all be listed with the office they belong to
     agents = relationship("Agents")
 
     def __repr__(self):
@@ -25,16 +26,17 @@ class Offices(Base):
 ### Information dependent on the home listed
 class Homes(Base):
     __tablename__ = 'homes'
-    home_id = Column(Integer, primary_key=True)
+    home_id = Column(Integer, primary_key=True) 
     beds = Column(Integer)
     baths = Column(Float) # We can have half baths so allow for 1 decimal place
     address = Column(Text)
     zipcode = Column(Text)
-    price_listed = Column(Float)
+    price_listed = Column(Float) # allow for decimals for a cost 
     date_listed = Column(DateTime)
     month_listed = Column(Integer)
-    sold = Column(Boolean, default=False)
-    listings = relationship("Listings")
+    sold = Column(Boolean, default=False) 
+    # Homes will also be included in listing and sale entries
+    listings = relationship("Listings") 
     sales = relationship("Sales")
     
     def __repr__(self):
@@ -44,10 +46,11 @@ class Homes(Base):
 class Agents(Base):
     __tablename__ = 'agents'
     agent_id = Column(Integer, primary_key = True)
-    office_id = Column(Integer, ForeignKey('offices.office_id'))
+    office_id = Column(Integer, ForeignKey('offices.office_id')) # which office an agent belongs to 
     first_name = Column(Text)
     last_name = Column(Text)
     email = Column(Text)
+    # Agents will also be included in listing and sale entries
     listings = relationship("Listings")
     sales = relationship("Sales")
 
@@ -79,7 +82,6 @@ class Listings(Base):
     seller_id = Column(Integer, ForeignKey('sellers.seller_id'))
 
     
-    
 ### Buyers (individuals purchasing property) table
 class Buyers(Base):
     __tablename__ = 'buyers'
@@ -96,7 +98,6 @@ class Buyers(Base):
 # Function used to calculate the commission, based off the price a property is sold for
 def calculate_commission(context):
     price_sold = context.get_current_parameters()["price_sold"]
-
     if price_sold < 100000.00:
         return price_sold*0.1
     if price_sold <= 200000.00:
@@ -116,14 +117,16 @@ class Sales(Base):
     agent_id = Column(Integer, ForeignKey('agents.agent_id'))
     buyer_id = Column(Integer, ForeignKey('buyers.buyer_id'))
     price_sold = Column(Float)
+    # The timing of a sale is assumed to be when we are entering the data entry
     date_sold = Column(DateTime, default=datetime.date.today())
     month_sold = Column(Integer, default=int(str(datetime.date.today().year) + str(datetime.date.today().month)))
-    commission = Column(Float, default=calculate_commission)
+    commission = Column(Float, default=calculate_commission) # use function specified above when sale entry is made
 
     def __repr__(self):
         return "<Sales(ID ={}, Price Sold ={}, Commission ={})".format(self.sale_id, self.price_sold, self.commission)
 
-# To handle question 4 
+
+# Commission table used for querying in question 4 
 class Commission(Base):
     __tablename__ = 'commission'
     commission_id = Column(Integer, primary_key = True)

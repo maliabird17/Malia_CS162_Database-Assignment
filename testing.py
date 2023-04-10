@@ -133,7 +133,6 @@ class TestDatabase(unittest.TestCase):
         Test transactions do not commit when an exception is raised
         (in this case by a bad input).
         """
-
         transaction(1, 'WRONG INPUT', 1, 80000.00)
         rows = self.session.query(func.count(Sales.sale_id)).scalar()
         self.assertEqual(rows, 0)
