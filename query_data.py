@@ -15,7 +15,6 @@ def print_result(outputs):
 
 ### QUESTION 1: Find the top 5 offices with the most sales for that month
 Index('idx_offices_agents', Agents.agent_id, Agents.office_id) # composite index to facilitate grouping agents by office
-
 # Top sales by number of sales made (ignoring price of sale)
 top_office_sale_counts = session.query(
     Offices.name, func.count(Sales.sale_id)
